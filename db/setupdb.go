@@ -11,13 +11,14 @@ import (
 var db *sql.DB
 
 const (
-	rootDbPwd = "1234"
+	dbPwd = "1234"
 )
 
 func init() {
+
 	var err error
 
-	connStr := "root:" + rootDbPwd + "@/mysql?charset=utf8&loc=Local&parseTime=true"
+	connStr := "root:" + dbPwd + "@/mysql?charset=utf8&loc=Local&parseTime=true"
 	db, err = sql.Open("mysql", connStr)
 	if err != nil {
 		log.Fatal("sql open failed" + err.Error())
@@ -36,7 +37,7 @@ func init() {
 		fmt.Println(err.Error())
 	}
 	stmt.Close()
-	connStr = "root:" + rootDbPwd + "@/golangim?charset=utf8&loc=Local&parseTime=true"
+	connStr = "root:" + dbPwd + "@/golangim?charset=utf8&loc=Local&parseTime=true"
 	db, err = sql.Open("mysql", connStr)
 	if err != nil {
 		log.Fatal("sqlopen failed" + err.Error())
@@ -52,11 +53,11 @@ func init() {
 		 account varchar(25) unique,
 		 pwd varchar(128) not null,
 		 email varchar(20),
-		 phone int(20),
+		 phone bigint,
 		 nickname varchar(50),
 		 icon varchar(256),
 		 sex enum('男','女','保密') default '保密',
-		 birthday date,
+		 birthday datetime,
 		 addr varchar(256)
 		 )`
 	stmt, err = db.Prepare(cr_table)

@@ -31,11 +31,11 @@ type Msg struct {
 }
 
 type UInfo struct {
-	ID       int32  `json:"id,omitempty"`
+	UID      int32  `json:"uID,omitempty"`
 	Nickname string `json:"nickname,omitempty"`
 	Account  string `json:"account,omitempty"`
 	Email    string `json:"email,omitempty"`
-	Phone    int32  `json:"phone,omitempty"`
+	Phone    int64  `json:"phone,omitempty"`
 	Pwd      string `json:"pwd,omitempty"`
 	Icon     string `json:"icon,omitempty"`
 	Addr     string `json:"addr,omitempty"`

@@ -1,42 +1,52 @@
 package db
 
 import (
+	"errors"
 	"log"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func GetUserInfo(account string) (*UInfo, error) {
 	uInfo := &UInfo{}
-	sql := "SELECT pwd FROM user WHERE account = ?"
+	sql := "SELECT * FROM user WHERE account = ?"
 	rows, err := db.Query(sql, account)
 	if err != nil {
-		log.Fatal(account, " query pwd failed ", err.Error())
+		log.Print(account, " query  failed ", err.Error())
 		return uInfo, err
 	}
-
+	defer rows.Close()
+	var birthdayTime time.Time
 	for rows.Next() {
-		if err := rows.Scan(uInfo); err != nil {
-			log.Fatal(account, "query pwd failed", err.Error())
+		err := rows.Scan(&uInfo.UID, &uInfo.Account, &uInfo.Pwd, &uInfo.Email, &uInfo.Phone, &uInfo.Nickname, &uInfo.Icon, &uInfo.Sex, &birthdayTime, &uInfo.Addr)
+		if err != nil {
+			log.Print(account, " query failed ", err.Error())
 			return uInfo, err
 		}
+		uInfo.Birthday = birthdayTime.Unix()
+		return uInfo, nil
 	}
-	return uInfo, nil
+	return uInfo, errors.New("账号不存在")
 }
 
 func SetUserInfo(uInfo *UInfo) error {
+
+	if uInfo.Account == "" || uInfo.Pwd == "" {
+		log.Print("空的账号或密码")
+		return errors.New("空的账号或密码")
+	}
+
 	if uInfo.Sex == "" {
 		uInfo.Sex = "保密"
 	}
 
-	// if uInfo.Birthday == 0 {
-	// 	timestamp := time.Now().Unix()
-	// 	uInfo.Birthday = timestamp
-	// }
+	temBirthTime := time.Unix(uInfo.Birthday, 0)
+
 	sql := "insert into user(account,email,phone,pwd,nickname,icon,sex,birthday,addr) values(?,?,?,?,?,?,?,?,?)"
-	_, err := db.Exec(sql, uInfo.Account, uInfo.Email, uInfo.Phone, uInfo.Pwd, uInfo.Nickname, uInfo.Icon, uInfo.Sex, uInfo.Birthday, uInfo.Addr)
+	_, err := db.Exec(sql, uInfo.Account, uInfo.Email, uInfo.Phone, uInfo.Pwd, uInfo.Nickname, uInfo.Icon, uInfo.Sex, temBirthTime, uInfo.Addr)
 	if err != nil {
-		log.Fatal(uInfo.Account, "insert data failed ", err.Error())
+		log.Print(uInfo.Account, " insert data failed ", err.Error())
 		return err
 	}
 	return nil
